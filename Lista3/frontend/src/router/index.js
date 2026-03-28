@@ -4,7 +4,8 @@ import Home from '../views/Home.vue'
 const routes = [
   { path: '/', component: Home },
   { path: '/RT_Dataset', component: () => import('../views/RtDatasetView.vue') },
-  { path: '/5G_Dataset', component: () => import('../views/FiveG_Dataset.vue') }
+  { path: '/ETDataset', component: () => import('../views/ETD.vue') },
+  { path: '/Reciever', component: () => import('../views/Reciever.vue') }
 ]
 
 const router = createRouter({

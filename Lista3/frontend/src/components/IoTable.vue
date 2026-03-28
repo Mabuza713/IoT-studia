@@ -1,7 +1,6 @@
 <template>
+  <button @click="getData">Pobierz dane</button>
   <div class="table-container">
-    <button @click="loadData"> FECZ DATA WITH HTTP</button>
-    <button @click=""> FECZ DATA USING MQTT</button>
     <table>
       <thead>
         <tr>
@@ -27,40 +26,21 @@
 
 <script setup>
 import { ref } from 'vue'
-import mqtt from 'mqtt'
 
 const props = defineProps({
-  columns: {
-    type: Array,
-    required: true
-  },
-  dataProvider: {
-    type: Function,
-    required: true
-  },
-  topic: {
-    type: String,
-    required: true
-  }
+  dataProvider: { type: Function, required: true },
+  columnsProvider: { type: Function, required: true },
 })
 
+const columns = ref([])
 const items = ref([])
 
-const loadData = async () => {
+const getData = async () => {
+  columns.value = await props.columnsProvider()
   const result = await props.dataProvider()
   items.value = typeof result === 'string' ? JSON.parse(result) : result
 
 }
-const client = mqtt.connect('ws://localhost:9001')
-client.on('connect', () => {
-  console.log('Connected to MQTT broker')
-  client.subscribe(props.topic)
-})
-client.on('message', (topic, message) => {
-  const result = message.toString()
-  items.value = typeof result === 'string' ? JSON.parse(result) : result
-})
-
 </script>
 
 <style scoped>
@@ -84,7 +64,4 @@ th {
   background-color: #f4f4f4;
 }
 
-.empty-state {
-  text-align: center;
-}
 </style>

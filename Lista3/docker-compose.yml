@@ -9,6 +9,13 @@ services:
     env_file:
       - .env
 
+  iot-reciever:
+    container_name: iot-reciever
+    build:
+      context: .
+      dockerfile: build/reciver.Dockerfile
+    ports:
+      - "8001:8001"
 
   iot-mqtt:
     image: eclipse-mosquitto
@@ -18,5 +25,3 @@ services:
       - "9001:9001"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-volumes:
-  iot-db:

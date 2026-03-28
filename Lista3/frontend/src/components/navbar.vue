@@ -20,7 +20,8 @@
 
 const navItems = [
   { path: '/RT_Dataset',   label: 'RT-IoT2022' },
-  { path: '/5G_Dataset',   label: 'Indoor 5G CSI' },
+  { path: '/ETDataset',   label: 'ETDataset' },
+  { path: '/Reciever',   label: 'Reciever' },
 ]
 
 </script>
