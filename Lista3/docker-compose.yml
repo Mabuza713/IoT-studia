@@ -8,27 +8,15 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@iot-db:5432/${POSTGRES_DB}
-    depends_on:
-      iot-db:
-        condition: service_healthy
 
 
-  iot-db:
-    image: postgres:16-alpine
-    container_name: iot-db
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  iot-mqtt:
+    image: eclipse-mosquitto
+    container_name: iot-mqtt
     ports:
-      - "5432:5432"
+      - "1883:1883"
+      - "9001:9001"
     volumes:
-      - iot-db:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      retries: 5
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
 volumes:
   iot-db:
