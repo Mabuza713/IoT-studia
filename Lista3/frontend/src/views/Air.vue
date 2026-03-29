@@ -6,10 +6,9 @@
       LINK
     </a>
   </p>
-
   <input id="data_source" type="text" placeholder="Data source"/>
-  <input id="separator" type="text" placeholder="Separator"><br/>
-  <input id="is_zip" type="checkbox" placeholder="Is zip"> <label>Is zip</label>
+  <input id="separator" type="text" placeholder="Separator">
+
 
   <h2> MQTT PART</h2>
   <p>Tutaj mozna wysyłać i modyfikować topici do mqtt</p>
@@ -36,9 +35,6 @@
 import IoTable from "../components/IoTable.vue";
 
 // https://bip.uke.gov.pl/download/gfx/bip/pl/defaultaktualnosci/140/5/111/pozwolenia_ntc_h_2026-01-28.csv
-// https://data.open-power-system-data.org/time_series/2020-10-06/time_series_30min_singleindex.csv
-// https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv
-// https://data.cityofnewyork.us/api/views/c3uy-2p5r/rows.csv?accessType=DOWNLOAD
 let columns = []
 
 
@@ -90,8 +86,7 @@ async function postMQTT() {
 async function getData() {
   const data_source = document.getElementById("data_source").value === "" ? "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv" : document.getElementById("data_source").value;
   const separator = document.getElementById("separator").value === "" ? "," : document.getElementById("separator").value;
-  const is_zip = document.getElementById("is_zip").checked;
-  return await fetch(`http://localhost:8000/ETDataset?data_source=${data_source}&separator=${separator}&is_zip=${is_zip}`).then(response => response.json()).then(data => data)
+  return await fetch(`http://localhost:8000/ETDataset?data_source=${data_source}&separator=${separator}`).then(response => response.json()).then(data => data)
 }
 
 async function getColumns() {

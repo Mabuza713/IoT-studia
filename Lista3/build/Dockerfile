@@ -18,4 +18,4 @@ RUN apk add --no-cache libpq
 
 COPY ./backend ./app
 
-CMD ["uvicorn", "app.fiveg:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.etdataset:app", "--host", "0.0.0.0", "--port", "8000"]

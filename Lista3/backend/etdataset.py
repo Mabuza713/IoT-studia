@@ -2,6 +2,9 @@ import os
 import random
 import time
 import asyncio
+import zipfile
+from io import BytesIO
+import json
 from fastapi import FastAPI, Response, Request
 from fastapi_mqtt import MQTTConfig, FastMQTT
 from starlette.middleware.cors import CORSMiddleware
@@ -26,6 +29,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 
 def csv_to_json(file, separator, index=0):
@@ -63,35 +68,44 @@ async def post_ETDataset(
     where_to_send = body.get("address", "http://iot-reciever:8001/")
     repeat_interval = float(body.get("repeat_interval", 0.5))
     from_req_to_file("app/data/ETDataset.csv", data_source)
+    separator = body.get("separator", ";")
 
     for i in range(packages_amount):
-        data = csv_to_json("app/data/ETDataset.csv", ";", i)
+        data = csv_to_json("app/data/ETDataset.csv", separator, i)
         response = requests.post(where_to_send, json=data)
-        time.sleep(repeat_interval)
+        await asyncio.sleep(repeat_interval)
 
     return response.json()
 
 
 @app.get("/ETDataset")
-def get_ETDataset(data_source: str = "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv"):
+def get_ETDataset(
+    data_source: str = "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv",
+    separator: str = ";",
+):
     from_req_to_file("app/data/ETDataset.csv", data_source)
-    df = pd.read_csv("app/data/ETDataset.csv", sep=';', encoding="cp1250", header=0)
+    df = pd.read_csv(
+        "app/data/ETDataset.csv", sep=separator, encoding="cp1250", header=0
+    )
 
     return df.to_json(orient="records")
 
+
 @app.get("/ETDataset/columns")
-def get_ETDataset_columns(data_source: str = "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv"):
-    print(data_source, flush=True)
+def get_ETDataset_columns(
+    data_source: str = "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv",
+    separator: str = ";",
+):
     from_req_to_file("app/data/ETDataset.csv", data_source)
-    df = pd.read_csv("app/data/ETDataset.csv", sep=";", encoding="cp1250", header=0)
+    df = pd.read_csv(
+        "app/data/ETDataset.csv", sep=separator, encoding="cp1250", header=0
+    )
     return df.columns.tolist()
 
 
 # ============= MQTT
 @app.post("/ETDataset/publish")
-async def publish_ETDataset(
-    request: Request
-):
+async def publish_ETDataset(request: Request):
     body = await request.json()
     data_source = body.get(
         "data_source",

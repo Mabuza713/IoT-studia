@@ -3,7 +3,7 @@ import Home from '../views/Home.vue'
 
 const routes = [
   { path: '/', component: Home },
-  { path: '/RT_Dataset', component: () => import('../views/RtDatasetView.vue') },
+  { path: '/RT_Dataset', component: () => import('../views/Air.vue') },
   { path: '/ETDataset', component: () => import('../views/ETD.vue') },
   { path: '/Reciever', component: () => import('../views/Reciever.vue') }
 ]

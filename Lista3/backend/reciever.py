@@ -5,8 +5,9 @@ from fastapi import FastAPI, Request
 from fastapi_mqtt import MQTTConfig, FastMQTT
 from starlette.middleware.cors import CORSMiddleware
 import requests
-
+import docker
 import pandas as pd
+from fastapi.responses import StreamingResponse
 
 app = FastAPI()
 
@@ -25,6 +26,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# ========== showing container logs on site
+
+docker_client = docker.from_env()
+container = docker_client.containers.get("iot-reciever")
+
+
+@app.get("/logs")
+def get_logs():
+    return StreamingResponse(
+        container.logs(stream=True, follow=True), media_type="text/text"
+    )
 
 
 # ========== REST
@@ -32,8 +44,7 @@ app.add_middleware(
 async def main(request: Request):
     body = await request.json()
     print(body)
-
-    return {"odebrano_body": body}
+    return body
 
 
 @app.post("/different")
@@ -44,9 +55,18 @@ async def main(request: Request):
 
 
 # ===================== MQTT
+topics = {"ETDataset"}
+
+
+@app.get("/topics")
+def get_topics():
+    return {"topics": list(topics)}
+
+
 @app.post("/add_topic")
 def add_subscription(topic: str):
     mqtt.client.subscribe(topic)
+    topics.add(topic)
     return {"message": "Subscribed to topic"}
 
 
