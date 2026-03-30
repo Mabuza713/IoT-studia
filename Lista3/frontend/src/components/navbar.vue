@@ -19,9 +19,14 @@
 <script setup>
 
 const navItems = [
-  { path: '/RT_Dataset',   label: 'RT-IoT2022' },
-  { path: '/ETDataset',   label: 'ETDataset' },
-  { path: '/Reciever',   label: 'Reciever' },
+    { path: '/GOV',   label: 'GOV DATASET' },
+    { path: '/ETDataset',   label: 'ETDataset' },
+    { path: '/SOLAR',   label: 'Solar' },
+    { path: '/ENERGY',   label: 'Energy' },
+    { path: '/NEWYORK',   label: 'New York' },
+    { path: '/Reciever',   label: 'Reciever' },
+
+
 ]
 
 </script>

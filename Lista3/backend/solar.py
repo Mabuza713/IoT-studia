@@ -31,8 +31,12 @@ app.add_middleware(
 )
 
 
-
-
+source = os.getenv("DATA_SOURCE")
+save_path = os.getenv("SAVE_PATH")
+sep = os.getenv("SEPARATOR")
+interval = os.getenv("REPEAT_INTERVAL")
+tpc = os.getenv("TOPIC")
+print(f"DEBUG: Odczytany topic z OS: {tpc}")
 def csv_to_json(file, separator, index=0):
     df = pd.read_csv(file, sep=separator, encoding="cp1250", header=0)
     if index is not None:
@@ -55,73 +59,75 @@ def from_req_to_file(file_path, data_source):
 
 
 # ============= REST
-@app.post("/ETDataset")
-async def post_ETDataset(
+@app.post("/solar")
+async def post_solar(
     request: Request,
     packages_amount: int = 100,
 ):
     body = await request.json()
     data_source = body.get(
         "data_source",
-        "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv",
+        source,
     )
     where_to_send = body.get("address", "http://iot-reciever:8001/")
-    repeat_interval = float(body.get("repeat_interval", 0.5))
-    from_req_to_file("app/data/ETDataset.csv", data_source)
-    separator = body.get("separator", ";")
+    repeat_interval = float(body.get("repeat_interval", interval))
+    from_req_to_file(save_path, data_source)
+    separator = body.get("separator", sep)
 
     for i in range(packages_amount):
-        data = csv_to_json("app/data/ETDataset.csv", separator, i)
+        data = csv_to_json(save_path, separator, i)
         response = requests.post(where_to_send, json=data)
         await asyncio.sleep(repeat_interval)
 
     return response.json()
 
 
-@app.get("/ETDataset")
-def get_ETDataset(
-    data_source: str = "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv",
-    separator: str = ";",
+@app.get("/solar")
+def get_solar(
+    data_source: str = source,
+    separator: str = sep,
 ):
-    from_req_to_file("app/data/ETDataset.csv", data_source)
+    from_req_to_file(save_path, data_source)
     df = pd.read_csv(
-        "app/data/ETDataset.csv", sep=separator, encoding="cp1250", header=0
+        save_path, sep=separator, encoding="cp1250", header=0
     )
 
-    return df.to_json(orient="records")
+    return df.head(50).to_json(orient="records")
 
 
-@app.get("/ETDataset/columns")
-def get_ETDataset_columns(
-    data_source: str = "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv",
-    separator: str = ";",
+@app.get("/solar/columns")
+def get_solar_columns(
+    data_source: str = source,
+    separator: str = sep,
 ):
-    from_req_to_file("app/data/ETDataset.csv", data_source)
+    from_req_to_file(save_path, data_source)
     df = pd.read_csv(
-        "app/data/ETDataset.csv", sep=separator, encoding="cp1250", header=0
+        save_path, sep=separator, encoding="cp1250", header=0
     )
     return df.columns.tolist()
 
 
 # ============= MQTT
-@app.post("/ETDataset/publish")
-async def publish_ETDataset(request: Request):
+@app.post("/solar/publish")
+async def publish_solar(request: Request):
     body = await request.json()
     data_source = body.get(
         "data_source",
-        "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv",
+        source,
     )
-    repeat_interval = float(body.get("repeat_interval", 0.5))
-    topic = body.get("topic", "ETDataset")
+    repeat_interval = float(body.get("repeat_interval", interval))
+    print("ssssssss")
+    print(tpc)
+    topic = body.get("topic", tpc)
 
-    from_req_to_file("app/data/ETDataset.csv", data_source)
+    from_req_to_file(save_path, data_source)
     for i in range(100):
-        data = csv_to_json("app/data/ETDataset.csv", ",", i)
+        data = csv_to_json(save_path, ",", i)
         mqtt.client.publish(topic, data)
         print(repeat_interval, flush=True)
         await asyncio.sleep(repeat_interval)
 
-    return {"message": "ETDataset finished"}
+    return {"message": "solar finished"}
 
 
 @app.post("/add_topic")
@@ -132,4 +138,5 @@ def add_subscription(topic: str):
 
 @mqtt.on_connect()
 def handle_connect(client, flags, rc, properties):
-    mqtt.client.subscribe("ETDataset")
+    print(tpc, flush=True)
+    mqtt.client.subscribe(tpc)

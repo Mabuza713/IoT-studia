@@ -59,12 +59,13 @@ def from_req_to_file(file_path, data_source):
 
 
 # ============= REST
-@app.post("/ETDataset")
-async def post_ETDataset(
+@app.post("/new_york")
+async def post_new_york(
     request: Request,
     packages_amount: int = 100,
 ):
     body = await request.json()
+    print(body)
     data_source = body.get(
         "data_source",
         source,
@@ -82,8 +83,8 @@ async def post_ETDataset(
     return response.json()
 
 
-@app.get("/ETDataset")
-def get_ETDataset(
+@app.get("/new_york")
+def get_new_york(
     data_source: str = source,
     separator: str = sep,
 ):
@@ -95,8 +96,8 @@ def get_ETDataset(
     return df.head(50).to_json(orient="records")
 
 
-@app.get("/ETDataset/columns")
-def get_ETDataset_columns(
+@app.get("/new_york/columns")
+def get_new_york_columns(
     data_source: str = source,
     separator: str = sep,
 ):
@@ -108,8 +109,8 @@ def get_ETDataset_columns(
 
 
 # ============= MQTT
-@app.post("/ETDataset/publish")
-async def publish_ETDataset(request: Request):
+@app.post("/new_york/publish")
+async def publish_new_york(request: Request):
     body = await request.json()
     data_source = body.get(
         "data_source",
@@ -125,7 +126,7 @@ async def publish_ETDataset(request: Request):
         print(repeat_interval, flush=True)
         await asyncio.sleep(repeat_interval)
 
-    return {"message": "ETDataset finished"}
+    return {"message": "new_york finished"}
 
 
 @app.post("/add_topic")

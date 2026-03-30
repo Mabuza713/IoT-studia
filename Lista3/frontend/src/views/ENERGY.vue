@@ -1,14 +1,14 @@
 <template>
-  <h1 class="title"> ETDataset</h1>
+  <h1 class="title"> ENERGY</h1>
   <h2> Źródło danych</h2>
   <p>Domyślne źródło danych to
-    <a href="https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv">
+    <a href="https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv">
       LINK
     </a>
   </p>
-  <input id="data_source" type="text" placeholder="Data source"/>
-  <input id="separator" type="text" placeholder="Separator">
 
+  <input id="data_source" type="text" placeholder="Data source"/>
+  <input id="separator" type="text" placeholder="Separator"><br/>
 
   <h2> MQTT PART</h2>
   <p>Tutaj mozna wysyłać i modyfikować topici do mqtt</p>
@@ -35,16 +35,19 @@
 import IoTable from "../components/IoTable.vue";
 
 // https://bip.uke.gov.pl/download/gfx/bip/pl/defaultaktualnosci/140/5/111/pozwolenia_ntc_h_2026-01-28.csv
+// https://data.open-power-system-data.org/time_series/2020-10-06/time_series_30min_singleindex.csv
+// https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv
+// https://data.cityofnewyork.us/api/views/c3uy-2p5r/rows.csv?accessType=DOWNLOAD
 let columns = []
 
 
 async function postHTTP() {
   const send_address = document.getElementById("where_to_send").value === "" ? "http://iot-reciever:8001/" : document.getElementById("where_to_send").value;
-  const data_source = document.getElementById("data_source").value === "" ? "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv" : document.getElementById("data_source").value;
+  const data_source = document.getElementById("data_source").value === "" ? "https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv" : document.getElementById("data_source").value;
   const repeat_interval = document.getElementById("repeat_http_interval").value === "" ? 0.5 : document.getElementById("repeat_http_interval").value;
   const separator = document.getElementById("separator").value === "" ? "," : document.getElementById("separator").value;
 
-  const response = fetch('http://localhost:8000/ETDataset', {
+  const response = fetch('http://localhost:8004/energy', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -61,13 +64,13 @@ async function postHTTP() {
 }
 
 async function postMQTT() {
-  const data_source = document.getElementById("data_source").value === "" ? "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv" : document.getElementById("data_source").value;
+  const data_source = document.getElementById("data_source").value === "" ? "https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv" : document.getElementById("data_source").value;
   const repeat_interval = document.getElementById("repeat_mqtt_interval").value === "" ? 0.5 : document.getElementById("repeat_mqtt_interval").value;
   const topic = document.getElementById("topic").value === "" ? "ETDataset" : document.getElementById("topic").value;
   const separator = document.getElementById("separator").value === "" ? "," : document.getElementById("separator").value;
 
 
-  const response = fetch('http://localhost:8000/ETDataset/publish', {
+  const response = fetch('http://localhost:8004/energy/publish', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -84,16 +87,16 @@ async function postMQTT() {
 }
 
 async function getData() {
-  const data_source = document.getElementById("data_source").value === "" ? "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv" : document.getElementById("data_source").value;
+  const data_source = document.getElementById("data_source").value === "" ? "https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv" : document.getElementById("data_source").value;
   const separator = document.getElementById("separator").value === "" ? "," : document.getElementById("separator").value;
-  return await fetch(`http://localhost:8000/ETDataset?data_source=${data_source}&separator=${separator}`).then(response => response.json()).then(data => data)
+  return await fetch(`http://localhost:8004/energy?data_source=${data_source}&separator=${separator}`).then(response => response.json()).then(data => data)
 }
 
 async function getColumns() {
-    const data_source = document.getElementById("data_source").value === "" ? "https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv" : document.getElementById("data_source").value;
+    const data_source = document.getElementById("data_source").value === "" ? "https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv" : document.getElementById("data_source").value;
     const separator = document.getElementById("separator").value === "" ? "," : document.getElementById("separator").value;
 
-    const columns_temp = await fetch(`http://localhost:8000/ETDataset/columns?data_source=${data_source}&separator=${separator}`).then(response => response.json())
+    const columns_temp = await fetch(`http://localhost:8004/energy/columns?data_source=${data_source}&separator=${separator}`).then(response => response.json())
     return columns_temp.map(columnName => ({ key: columnName, label: columnName }))
 }
 </script>

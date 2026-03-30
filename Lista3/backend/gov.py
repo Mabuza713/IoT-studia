@@ -59,8 +59,8 @@ def from_req_to_file(file_path, data_source):
 
 
 # ============= REST
-@app.post("/ETDataset")
-async def post_ETDataset(
+@app.post("/gov_dataset")
+async def post_gov_dataset(
     request: Request,
     packages_amount: int = 100,
 ):
@@ -82,8 +82,8 @@ async def post_ETDataset(
     return response.json()
 
 
-@app.get("/ETDataset")
-def get_ETDataset(
+@app.get("/gov_dataset")
+def get_gov_dataset(
     data_source: str = source,
     separator: str = sep,
 ):
@@ -95,8 +95,8 @@ def get_ETDataset(
     return df.head(50).to_json(orient="records")
 
 
-@app.get("/ETDataset/columns")
-def get_ETDataset_columns(
+@app.get("/gov_dataset/columns")
+def get_gov_dataset_columns(
     data_source: str = source,
     separator: str = sep,
 ):
@@ -108,8 +108,8 @@ def get_ETDataset_columns(
 
 
 # ============= MQTT
-@app.post("/ETDataset/publish")
-async def publish_ETDataset(request: Request):
+@app.post("/gov_dataset/publish")
+async def publish_gov_dataset(request: Request):
     body = await request.json()
     data_source = body.get(
         "data_source",
@@ -125,7 +125,7 @@ async def publish_ETDataset(request: Request):
         print(repeat_interval, flush=True)
         await asyncio.sleep(repeat_interval)
 
-    return {"message": "ETDataset finished"}
+    return {"message": "gov_dataset finished"}
 
 
 @app.post("/add_topic")

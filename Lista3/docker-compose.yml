@@ -1,13 +1,74 @@
 services:
-  iot-app:
-    container_name: iot-app
+  iot-app-etd:
+    container_name: iot-app-etd
     build:
       context: .
       dockerfile: build/Dockerfile
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    environment:
+      - DATA_SOURCE=https://raw.githubusercontent.com/zhouhaoyi/ETDataset/refs/heads/main/ETT-small/ETTh1.csv
+      - SAVE_PATH=app/data/ETDataset.csv
+      - SEPARATOR=,
+      - REPEAT_INTERVAL=0.5
+      - TOPIC=ETDataset
+
+  iot-app-gov:
+    container_name: iot-app-gov
+    build:
+      context: .
+      dockerfile: build/gov.Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - DATA_SOURCE=https://bip.uke.gov.pl/download/gfx/bip/pl/defaultaktualnosci/140/5/111/pozwolenia_ntc_h_2026-01-28.csv
+      - SAVE_PATH=app/data/gov.csv
+      - SEPARATOR=;
+      - REPEAT_INTERVAL=0.5
+      - TOPIC=GOV
+
+
+  iot-app-solar:
+    container_name: iot-app-solar
+    build:
+      context: .
+      dockerfile: build/solar.Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - DATA_SOURCE=https://data.open-power-system-data.org/time_series/2020-10-06/time_series_30min_singleindex.csv
+      - SAVE_PATH=app/data/solar.csv
+      - SEPARATOR=,
+      - REPEAT_INTERVAL=0.5
+      - TOPIC=solar
+
+  iot-app-energy:
+    container_name: iot-app-energy
+    build:
+      context: .
+      dockerfile: build/energy.Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - DATA_SOURCE=https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv
+      - SAVE_PATH=app/data/energy.csv
+      - SEPARATOR=,
+      - REPEAT_INTERVAL=0.5
+      - TOPIC=energy
+
+  iot-app-ny:
+    container_name: iot-app-ny
+    build:
+      context: .
+      dockerfile: build/new_york.Dockerfile
+    ports:
+      - "8005:8005"
+    environment:
+      - DATA_SOURCE=https://data.cityofnewyork.us/api/views/c3uy-2p5r/rows.csv?accessType=DOWNLOAD
+      - SAVE_PATH=app/data/new_york.csv
+      - SEPARATOR=,
+      - REPEAT_INTERVAL=0.5
+      - TOPIC=ny
 
   iot-reciever:
     container_name: iot-reciever
